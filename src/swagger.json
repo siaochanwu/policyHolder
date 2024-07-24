@@ -1,0 +1,196 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Policyholder API",
+    "description": "Policyholder API",
+    "version": "1.0.0"
+  },
+  "host": "localhost:3000",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "Policyholder",
+      "description": "Policyholder API"
+    }
+  ],
+  "schemes": ["http"],
+  "paths": {
+    "/api/policyholder": {
+      "post": {
+        "tags": ["Policyholder"],
+        "summary": "Create a new policyholder",
+        "requestBody": {
+          "description": "create a new policyholder",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "wendy"
+                  },
+                  "idNumber": {
+                    "type": "string",
+                    "example": "F123456789"
+                  },
+                  "introducer_code": {
+                    "type": "string",
+                    "example": "1"
+                  }
+                },
+                "required": ["name", "idNumber"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Policyholder created"
+          },
+          "409": {
+            "description": "Policyholder already exists"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/policyholders": {
+      "get": {
+        "tags": ["Policyholder"],
+        "summary": "Get all policyholders",
+        "responses": {
+          "200": {
+            "description": "Policyholders found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/policyholders/{code}": {
+      "get": {
+        "tags": ["Policyholder"],
+        "summary": "Get a policyholder by code",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Policyholder found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "idNumber": {
+                      "type": "string"
+                    },
+                    "registration_date": {
+                      "type": "datetime"
+                    },
+                    "introducer_code": {
+                      "type": "string"
+                    },
+                    "l": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "code": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "registration_date": {
+                            "type": "date time"
+                          },
+                          "introducer_code": {
+                            "type": "string"
+                          },
+                          "relationship": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "r": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "code": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "registration_date": {
+                            "type": "date time"
+                          },
+                          "introducer_code": {
+                            "type": "string"
+                          },
+                          "relationship": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Policyholder not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/policyholders/{code}/top": {
+      "get": {
+        "tags": ["Policyholder"],
+        "summary": "Get top policyholder by code",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Policyholder found"
+          },
+          "404": {
+            "description": "Policyholder not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  }
+}

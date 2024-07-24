@@ -3,9 +3,11 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import sequelize from './configs/db';
 import policyholderRoute from './routes/policyholderRoute';
+import setupSwagger from './swaggerConfig';
 
 const app = express();
 app.use(bodyParser.json());
+setupSwagger(app);
 app.use('/api', policyholderRoute);
 
 const start = async (): Promise<void> => {
@@ -13,7 +15,7 @@ const start = async (): Promise<void> => {
     await sequelize.sync();
   } catch (err) {
     console.error(err);
-    // process.exit(1);
+    process.exit(1);
   }
 };
 void start();

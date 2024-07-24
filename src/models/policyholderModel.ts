@@ -23,7 +23,7 @@ export class Policyholder extends Model {
   name!: string;
 
   @Column(DataType.STRING(20))
-  idNumber!: string;
+  id_number!: string;
 
   @Column(DataType.DATE)
   registration_date!: Date;

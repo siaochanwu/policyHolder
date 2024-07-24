@@ -31,7 +31,7 @@
                     "type": "string",
                     "example": "wendy"
                   },
-                  "idNumber": {
+                  "id_number": {
                     "type": "string",
                     "example": "F123456789"
                   },
@@ -40,7 +40,7 @@
                     "example": "1"
                   }
                 },
-                "required": ["name", "idNumber"]
+                "required": ["name", "id_number"]
               }
             }
           }
@@ -98,7 +98,7 @@
                     "name": {
                       "type": "string"
                     },
-                    "idNumber": {
+                    "id_number": {
                       "type": "string"
                     },
                     "registration_date": {

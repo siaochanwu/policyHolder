@@ -10,24 +10,24 @@ beforeAll(async () => {
   // create a dummy policyholder
   await request(app).post("/api/policyholder").send({
     name: "john",
-    idNumber: "A123456798",
+    id_number: "A123456798",
   });
 
   await request(app).post("/api/policyholder").send({
     name: "aaa",
-    idNumber: "A123456790",
+    id_number: "A123456790",
     introducer_code: "1",
   });
 
   await request(app).post("/api/policyholder").send({
     name: "bbb",
-    idNumber: "A123456791",
+    id_number: "A123456791",
     introducer_code: "1",
   });
 
   await request(app).post("/api/policyholder").send({
     name: "ccc",
-    idNumber: "A123456792",
+    id_number: "A123456792",
     introducer_code: "2",
   });
 });
@@ -40,17 +40,17 @@ describe("Policyholder API", () => {
   it("should create a new policyholder", async () => {
     const res = await request(app).post("/api/policyholder").send({
       name: "wendy",
-      idNumber: "A123456789",
+      id_number: "A123456789",
       introducer_code: "1",
     });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty("code");
   });
 
-  it("should not create a new policyholder if idNumber already exists", async () => {
+  it("should not create a new policyholder if id_number already exists", async () => {
     const res = await request(app).post("/api/policyholder").send({
       name: "wendy",
-      idNumber: "A123456798",
+      id_number: "A123456798",
     });
     expect(res.status).toBe(409);
     expect(res.body).toHaveProperty("message");

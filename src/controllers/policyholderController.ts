@@ -3,23 +3,21 @@ import { Policyholder } from "../models/policyholderModel";
 
 //create a new policyholder
 export const createPolicyholder = async (req: Request, res: Response) => {
-  console.log(req.body);
-  const { idNumber, name, introducer_code } = req.body;
+  const { id_number, name, introducer_code } = req.body;
 
   try {
-    // check if idNumber(身分證號) exists
-    const idNumberExists = await Policyholder.findOne({
+    // check if id_number(身分證號) exists
+    const id_numberExists = await Policyholder.findOne({
       where: {
-        idNumber: idNumber,
+        id_number: id_number,
       },
     });
 
-    //if idNumber not exists, find the the last id, and add 1 to it
-    if (!idNumberExists) {
+    //if id_number not exists, find the the last id, and add 1 to it
+    if (!id_numberExists) {
       const lastId = (await Policyholder.findOne({
         order: [["code", "DESC"]],
       })) || { code: "0000000000" };
-      // console.log("lastId", lastId);
 
       const newId = parseInt(lastId.code) + 1;
 
@@ -28,7 +26,7 @@ export const createPolicyholder = async (req: Request, res: Response) => {
         name: name,
         registration_date: new Date(),
         introducer_code: introducer_code,
-        idNumber: idNumber,
+        id_number: id_number,
       };
       const newPolicyholder = await Policyholder.create(data);
 
@@ -39,7 +37,7 @@ export const createPolicyholder = async (req: Request, res: Response) => {
 
       return res.status(201).json(newPolicyholder);
     } else {
-      return res.status(409).json({ message: "idNumber already exists" });
+      return res.status(409).json({ message: "id_number already exists" });
     }
   } catch (error) {
     return res.status(500).json(error);
@@ -112,10 +110,12 @@ async function updateTopParent(
         await updateTopParent(topParent, newPolicyholder, "indirect");
       }
     } else {
-      return console.log("Top parent not found");
+      console.log("Top parent not found");
+      return;
     }
   } catch (error) {
-    return console.log(error);
+    console.log(error);
+    return;
   }
 }
 

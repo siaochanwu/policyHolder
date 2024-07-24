@@ -4,21 +4,26 @@ import bodyParser from 'body-parser';
 import sequelize from './configs/db';
 import policyholderRoute from './routes/policyholderRoute';
 
-
 const app = express();
 app.use(bodyParser.json());
 app.use('/api', policyholderRoute);
 
+const start = async (): Promise<void> => {
+  try {
+    await sequelize.sync();
+  } catch (err) {
+    console.error(err);
+    // process.exit(1);
+  }
+};
+void start();
 
 const port = process.env.PORT || 3000;
 
-
-sequelize.sync().then(() => {
-    console.log('Database synced');
-  }).catch((err) => {
-    console.error('Failed to sync database:', err);
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
   });
+};
 
-app.listen(port, async () => {
-    console.log(`Server is running on port ${port}`);
-});
+export default app;

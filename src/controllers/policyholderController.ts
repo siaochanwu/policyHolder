@@ -7,26 +7,26 @@ export const createPolicyholder = async (req: Request, res: Response) => {
   const { id_number, name, introducer_code } = req.body;
 
   try {
+    // check if id_number(身分證號) exists
+    const id_numberExists = await Policyholder.findOne({
+      where: {
+        id_number: id_number,
+      },
+    });
+    if (id_numberExists) {
+      return res.status(409).json({ message: "id_number already exists" });
+    }
+
     // Start a database transaction
     const t = await sequelize.transaction();
 
     try {
-      // check if id_number(身分證號) exists
-      const id_numberExists = await Policyholder.findOne({
-        where: {
-          id_number: id_number,
-        },
-        transaction: t,
-      });
-
       //if id_number not exists, find the the last id, and add 1 to it
       if (!id_numberExists) {
-        const lastId = (await Policyholder.findOne({
-          order: [["code", "DESC"]],
-          transaction: t,
-        })) || { code: "0000000000" };
+        //get count of all policyholders
+        const count = await Policyholder.count();
 
-        const newId = parseInt(lastId.code) + 1;
+        const newId = count + 1;
 
         if (introducer_code >= newId) {
           throw "Invalid introducer_code";
@@ -40,7 +40,7 @@ export const createPolicyholder = async (req: Request, res: Response) => {
           id_number: id_number,
         };
         const newPolicyholder = await Policyholder.create(data, {
-          transaction: t, 
+          transaction: t,
         });
 
         // check if introducer_code exists
@@ -54,7 +54,6 @@ export const createPolicyholder = async (req: Request, res: Response) => {
         return res.status(201).json(newPolicyholder);
       } else {
         await t.rollback();
-        return res.status(409).json({ message: "id_number already exists" });
       }
     } catch (error) {
       // Rollback the transaction if an error occurs

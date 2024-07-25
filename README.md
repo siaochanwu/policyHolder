@@ -11,6 +11,7 @@ The Policyholder Introduction System is designed to manage the relationships bet
 - [API Endpoints](#api-endpoints)
 - [Database Schema](#database-schema)
 - [Testing](#testing)
+- [License](#license)
 
 ## Features
 
@@ -193,3 +194,7 @@ Run tests using Jest
 ```bash
 npm test
 ```
+
+## License
+This project is licensed under the MIT License - see the LICENSE file for details.
+

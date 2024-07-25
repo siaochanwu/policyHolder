@@ -1,53 +1,76 @@
 import { Request, Response } from "express";
 import { Policyholder } from "../models/policyholderModel";
+import { Transaction } from "sequelize/types";
+import sequelize from "../configs/db";
 
-//create a new policyholder
 export const createPolicyholder = async (req: Request, res: Response) => {
   const { id_number, name, introducer_code } = req.body;
 
   try {
-    // check if id_number(身分證號) exists
-    const id_numberExists = await Policyholder.findOne({
-      where: {
-        id_number: id_number,
-      },
-    });
+    // Start a database transaction
+    const t = await sequelize.transaction();
 
-    //if id_number not exists, find the the last id, and add 1 to it
-    if (!id_numberExists) {
-      const lastId = (await Policyholder.findOne({
-        order: [["code", "DESC"]],
-      })) || { code: "0000000000" };
+    try {
+      // check if id_number(身分證號) exists
+      const id_numberExists = await Policyholder.findOne({
+        where: {
+          id_number: id_number,
+        },
+        transaction: t,
+      });
 
-      const newId = parseInt(lastId.code) + 1;
+      //if id_number not exists, find the the last id, and add 1 to it
+      if (!id_numberExists) {
+        const lastId = (await Policyholder.findOne({
+          order: [["code", "DESC"]],
+          transaction: t,
+        })) || { code: "0000000000" };
 
-      const data = {
-        code: newId.toString(),
-        name: name,
-        registration_date: new Date(),
-        introducer_code: introducer_code,
-        id_number: id_number,
-      };
-      const newPolicyholder = await Policyholder.create(data);
+        const newId = parseInt(lastId.code) + 1;
 
-      // check if introducer_code exists
-      if (introducer_code) {
-        await updateTopParent(newPolicyholder, newPolicyholder, "direct");
+        if (introducer_code >= newId) {
+          throw "Invalid introducer_code";
+        }
+
+        const data = {
+          code: newId.toString(),
+          name: name,
+          registration_date: new Date(),
+          introducer_code: introducer_code,
+          id_number: id_number,
+        };
+        const newPolicyholder = await Policyholder.create(data, {
+          transaction: t, 
+        });
+
+        // check if introducer_code exists
+        if (introducer_code) {
+          await updateTopParent(newPolicyholder, newPolicyholder, "direct", t);
+        }
+
+        // Commit the transaction
+        await t.commit();
+
+        return res.status(201).json(newPolicyholder);
+      } else {
+        await t.rollback();
+        return res.status(409).json({ message: "id_number already exists" });
       }
-
-      return res.status(201).json(newPolicyholder);
-    } else {
-      return res.status(409).json({ message: "id_number already exists" });
+    } catch (error) {
+      // Rollback the transaction if an error occurs
+      await t.rollback();
+      throw error;
     }
   } catch (error) {
-    return res.status(500).json(error);
+    return res.status(500).json({ message: error });
   }
 };
 
 async function updateTopParent(
   introducer: Policyholder,
   newPolicyholder: Policyholder,
-  relationship: "direct" | "indirect"
+  relationship: "direct" | "indirect",
+  transaction: Transaction
 ) {
   if (!introducer.introducer_code) return;
 
@@ -104,10 +127,15 @@ async function updateTopParent(
           ];
         }
       }
-      await topParent.save();
+      await topParent.save({ transaction });
 
       if (topParent.introducer_code) {
-        await updateTopParent(topParent, newPolicyholder, "indirect");
+        await updateTopParent(
+          topParent,
+          newPolicyholder,
+          "indirect",
+          transaction
+        );
       }
     } else {
       console.log("Top parent not found");
@@ -124,7 +152,7 @@ export const getPolicyholders = async (req: Request, res: Response) => {
     const policyholders = await Policyholder.findAll();
     return res.status(200).json(policyholders);
   } catch (error) {
-    return res.status(500).json(error);
+    return res.status(500).json({ message: error });
   }
 };
 
@@ -150,7 +178,7 @@ export const getPolicyholderById = async (req: Request, res: Response) => {
         policyholder.r.length > 8 ? policyholder.r.slice(0, 8) : policyholder.r,
     });
   } catch (error) {
-    return res.status(500).json(error);
+    return res.status(500).json({ message: error });
   }
 };
 
@@ -187,6 +215,6 @@ export const getTopParent = async (req: Request, res: Response) => {
       }
     }
   } catch (error) {
-    return res.status(500).json(error);
+    return res.status(500).json({ message: error });
   }
 };

@@ -26,14 +26,14 @@ export const createPolicyholder = async (req: Request, res: Response) => {
         //get count of all policyholders
         const count = await Policyholder.count();
 
-        const newId = count + 1;
+        const newCode = count + 1;
 
-        if (introducer_code >= newId) {
+        if (introducer_code >= newCode) {
           throw "Invalid introducer_code";
         }
 
         const data = {
-          code: newId.toString(),
+          code: newCode.toString(),
           name: name,
           registration_date: new Date(),
           introducer_code: introducer_code,
@@ -52,8 +52,6 @@ export const createPolicyholder = async (req: Request, res: Response) => {
         await t.commit();
 
         return res.status(201).json(newPolicyholder);
-      } else {
-        await t.rollback();
       }
     } catch (error) {
       // Rollback the transaction if an error occurs
@@ -206,8 +204,8 @@ export const getTopParent = async (req: Request, res: Response) => {
           name: topParent.name,
           registration_date: topParent.registration_date,
           introducer_code: topParent.introducer_code,
-          l: topParent.l,
-          r: topParent.r,
+          l: topParent.l.length > 8 ? topParent.l.slice(0, 8) : topParent.l,
+          r: topParent.r.length > 8 ? topParent.r.slice(0, 8) : topParent.r,
         });
       } else {
         return res.status(404).json({ message: "Top parent not found" });

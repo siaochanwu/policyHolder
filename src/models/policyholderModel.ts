@@ -16,14 +16,20 @@ export class Policyholder extends Model {
   @Column({
     type: DataType.STRING(20),
     primaryKey: true,
+    allowNull: false,
   })
   code!: string;
 
   @Column(DataType.STRING(50))
   name!: string;
 
-  @Column(DataType.STRING(20))
+  @Column({
+    type: DataType.STRING(20),
+    unique: true,
+    allowNull: false,
+  })
   id_number!: string;
+  
 
   @Column(DataType.DATE)
   registration_date!: Date;

@@ -15,7 +15,6 @@ const start = async (): Promise<void> => {
     await sequelize.sync();
   } catch (err) {
     console.error(err);
-    process.exit(1);
   }
 };
 void start();
